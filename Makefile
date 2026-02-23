@@ -28,7 +28,7 @@ build-tensorflow:
 
 build-alphatauri:
 	@echo "Building JupyterHub Alpha server image..."
-	docker build -t jupyterhub-images-alphatauri:latest images/alphatauri/
+	docker build -t xcurvnubaim/jupyterhub-images-alphatauri:latest images/alphatauri/
 
 clean:
 	@echo "Cleaning up old images..."
