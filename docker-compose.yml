@@ -127,6 +127,8 @@ services:
       HOST_DATA_DIR: ${PWD}/volume
       # Enable GPU support (1 = enabled, 0 = disabled)
       ENABLE_GPU: ${ENABLE_GPU:-0}
+      # Memory limit for spawned containers (e.g., "4G", "32G")
+      DOCKER_SPAWN_MEM_LIMIT: ${DOCKER_SPAWN_MEM_LIMIT:-32G}
     working_dir: ${DATA_VOLUME_CONTAINER}
     command: >
       jupyterhub -f /srv/jupyterhub/jupyterhub_config.py
