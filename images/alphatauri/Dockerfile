@@ -72,6 +72,7 @@ ENV ESMFMKFILE=/opt/conda/lib/esmf.mk
 # Install TensorFlow with GPU support via pip
 # It will use the CUDA 12.9 and cuDNN 9 from the base image
 RUN pip install --no-cache-dir tensorflow[and-cuda]==2.18
+RUN pip install torch torchvision --index-url https://download.pytorch.org/whl/cu128
 
 COPY jupyter_server_config.py /etc/jupyter/
 
