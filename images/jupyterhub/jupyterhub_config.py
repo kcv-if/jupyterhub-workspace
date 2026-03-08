@@ -76,7 +76,8 @@ c.DockerSpawner.allowed_images = [
     "quay.io/jupyterhub/singleuser:5.4",
     "jupyterhub-nvidia-tensorflow:latest",
     "jupyterhub-nvidia-pytorch:latest",
-    "xcurvnubaim/jupyterhub-images-alphatauri:latest"
+    "xcurvnubaim/jupyterhub-images-alphatauri:latest",
+    "xcurvnubaim/jupyterhub-bolzano:latest"
 ]
 
 # Image labels for better UX
@@ -84,7 +85,8 @@ image_labels = {
     "quay.io/jupyterhub/singleuser:5.4": "JupyterHub Single User (Default)",
     "jupyterhub-nvidia-tensorflow:latest": "NVIDIA TensorFlow 25.02",
     "jupyterhub-nvidia-pytorch:latest": "NVIDIA PyTorch 26.01",
-    "xcurvnubaim/jupyterhub-images-alphatauri:latest": "JupyterHub Images Alphatauri (Experimental)"
+    "xcurvnubaim/jupyterhub-images-alphatauri:latest": "JupyterHub Images Alphatauri (Experimental)",
+    "xcurvnubaim/jupyterhub-bolzano:latest": "Bolzano - ML & EDA (Python 3.12, CUDA 13.1, VS Code)"
 }
 
 def get_options_form(spawner):

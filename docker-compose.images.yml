@@ -26,3 +26,11 @@ services:
         TENSORFLOW_IMAGE: nvcr.io/nvidia/tensorflow:25.02-tf2-py3
     image: jupyterhub-nvidia-tensorflow:latest
     command: ["--help"]  # Dummy command, not meant to run
+
+  # Bolzano: ML & EDA image with code-server
+  bolzano:
+    build:
+      context: images/bolzano
+      dockerfile: Dockerfile
+    image: jupyterhub-bolzano:latest
+    command: ["--help"]  # Dummy command, not meant to run
