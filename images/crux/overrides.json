@@ -1,0 +1,21 @@
+{
+  "@jupyterlab/completer-extension:manager": {
+    "providers": {
+      "@jupyterlab/completer-extension:kernel-completer": {
+        "enabled": true,
+        "rank": 500
+      },
+      "@jupyterlab/lsp-completer": {
+        "enabled": true,
+        "rank": 600
+      }
+    },
+    "autoCompletion": true
+  },
+  "@jupyterlab/apputils-extension:notification": {
+    "fetchNews": "false"
+  },
+  "@jupyterlab/lsp-extension:plugin": {
+    "continuousHinting": true
+  }
+}

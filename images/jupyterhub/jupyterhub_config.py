@@ -62,26 +62,47 @@ c.DockerSpawner.notebook_dir = notebook_dir
 # Get the host path - /data in container maps to ./volume on host
 # We need to use the absolute path on the host for Docker mounts
 host_data_dir = os.environ.get('HOST_DATA_DIR', '/data')
+ollama_models_dir = os.environ.get(
+    "OLLAMA_MODELS_DIR",
+    "/srv/ollama-models"
+)
 
 def create_dir_hook(spawner):
     """Create user directory on host before spawning container"""
     username = spawner.user.name
-    # Create directory inside the JupyterHub container at /data
+
+    # User notebook directory
     user_dir = pathlib.Path(f"/data/jupyterhub-user-{username}")
     user_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Set ownership to UID 1000 (ubuntu/jovyan) and make writable
-    # Works for both standard singleuser images (jovyan) and NVIDIA images (ubuntu)
+
     subprocess.run(['chown', '-R', '1000:1000', str(user_dir)], check=False)
     subprocess.run(['chmod', '775', str(user_dir)], check=False)
+
+    # Shared Ollama model directory
+    ollama_dir = pathlib.Path(ollama_models_dir)
+    ollama_dir.mkdir(parents=True, exist_ok=True)
+
+    # Read-only for users
+    subprocess.run(['chmod', '755', str(ollama_dir)], check=False)
 
 c.Spawner.pre_spawn_hook = create_dir_hook
 
 # Mount a directory on the host to the notebook user's notebook directory in the container
 # Note: This must be the actual host path, not the path inside jupyterhub container
 c.DockerSpawner.mounts = [
-    {'source': f'{host_data_dir}/jupyterhub-user-{{username}}', 'target': notebook_dir, 'type': 'bind'}
+    {'source': f'{host_data_dir}/jupyterhub-user-{{username}}', 'target': notebook_dir, 'type': 'bind'},
+    {
+        'source': ollama_models_dir,
+        'target': '/srv/ollama-models',
+        'type': 'bind',
+        'read_only': True
+    }
 ]
+
+c.DockerSpawner.environment = {
+    "OLLAMA_MODELS": "/srv/ollama-models",
+    "OLLAMA_HOST": "127.0.0.1:11434",
+}
 
 # Persist hub data on volume mounted inside container
 c.JupyterHub.cookie_secret_file = "/data/jupyterhub_cookie_secret"
@@ -93,7 +114,8 @@ c.DockerSpawner.allowed_images = [
     "jupyterhub-nvidia-tensorflow:latest",
     "jupyterhub-nvidia-pytorch:latest",
     "xcurvnubaim/jupyterhub-images-alphatauri:latest",
-    "xcurvnubaim/jupyterhub-bolzano:latest"
+    "xcurvnubaim/jupyterhub-bolzano:latest",
+    "xcurvnubaim/jupyterhub-crux:latest"
 ]
 
 # Image labels for better UX
@@ -102,7 +124,8 @@ image_labels = {
     "jupyterhub-nvidia-tensorflow:latest": "NVIDIA TensorFlow 25.02",
     "jupyterhub-nvidia-pytorch:latest": "NVIDIA PyTorch 26.01",
     "xcurvnubaim/jupyterhub-images-alphatauri:latest": "JupyterHub Images Alphatauri (Experimental)",
-    "xcurvnubaim/jupyterhub-bolzano:latest": "Bolzano - ML & EDA (Python 3.12, CUDA 13.1, VS Code)"
+    "xcurvnubaim/jupyterhub-bolzano:latest": "Bolzano - ML & EDA (Python 3.12, CUDA 13.1, VS Code)",
+    "xcurvnubaim/jupyterhub-crux:latest": "Crux - Ollama (Python 3.12, CUDA 13.1, VS Code, Ollama)"
 }
 
 def get_options_form(spawner):

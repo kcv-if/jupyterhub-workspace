@@ -46,6 +46,13 @@ build-bolzano:
 push-bolzano:
 	docker push xcurvnubaim/jupyterhub-bolzano:latest
 
+build-crux:
+	@echo "Building JupyterHub Crux server image..."
+	docker build -t xcurvnubaim/jupyterhub-crux:latest images/crux/
+
+push-crux:
+	docker push xcurvnubaim/jupyterhub-crux:latest
+
 # Generate Let's Encrypt SSL cert via Cloudflare DNS-01 challenge
 # Requires: cloudflare.ini with API token (see cloudflare.ini.example)
 # Usage: make generate-cert
