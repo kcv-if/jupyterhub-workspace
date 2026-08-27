@@ -62,10 +62,8 @@ c.DockerSpawner.notebook_dir = notebook_dir
 # Get the host path - /data in container maps to ./volume on host
 # We need to use the absolute path on the host for Docker mounts
 host_data_dir = os.environ.get('HOST_DATA_DIR', '/data')
-ollama_models_dir = os.environ.get(
-    "OLLAMA_MODELS_DIR",
-    "/srv/ollama-models"
-)
+# Bulk storage on the HDD, shared read-write by all users
+shared_dir = os.environ.get("HOST_SHARED_DIR", "/shared")
 
 def create_dir_hook(spawner):
     """Create user directory on host before spawning container"""
@@ -78,12 +76,12 @@ def create_dir_hook(spawner):
     subprocess.run(['chown', '-R', '1000:1000', str(user_dir)], check=False)
     subprocess.run(['chmod', '775', str(user_dir)], check=False)
 
-    # Shared Ollama model directory
-    ollama_dir = pathlib.Path(ollama_models_dir)
-    ollama_dir.mkdir(parents=True, exist_ok=True)
-
-    # Read-only for users
-    subprocess.run(['chmod', '755', str(ollama_dir)], check=False)
+    # Shared bulk storage (mounted at /shared inside the hub).
+    # Not recursive: the tree grows to hundreds of GB and this runs on every spawn.
+    for path in ("/shared", "/shared/ollama-models"):
+        pathlib.Path(path).mkdir(parents=True, exist_ok=True)
+        subprocess.run(['chown', '1000:1000', path], check=False)
+        subprocess.run(['chmod', '775', path], check=False)
 
 c.Spawner.pre_spawn_hook = create_dir_hook
 
@@ -91,16 +89,13 @@ c.Spawner.pre_spawn_hook = create_dir_hook
 # Note: This must be the actual host path, not the path inside jupyterhub container
 c.DockerSpawner.mounts = [
     {'source': f'{host_data_dir}/jupyterhub-user-{{username}}', 'target': notebook_dir, 'type': 'bind'},
-    {
-        'source': ollama_models_dir,
-        'target': '/srv/ollama-models',
-        'type': 'bind',
-        'read_only': True
-    }
+    # Nested under notebook_dir so it shows up in the Jupyter file browser,
+    # which is rooted at notebook_dir and cannot see siblings.
+    {'source': shared_dir, 'target': f'{notebook_dir}/shared', 'type': 'bind'},
 ]
 
 c.DockerSpawner.environment = {
-    "OLLAMA_MODELS": "/srv/ollama-models",
+    "OLLAMA_MODELS": f"{notebook_dir}/shared/ollama-models",
     "OLLAMA_HOST": "127.0.0.1:11434",
 }
 
