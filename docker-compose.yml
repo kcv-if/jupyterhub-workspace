@@ -113,7 +113,8 @@ services:
       - "data:${DATA_VOLUME_CONTAINER}:rw"
       - "ssl:${SSL_VOLUME_CONTAINER}:rw"
       - "./images/jupyterhub/jupyterhub_config.py:/srv/jupyterhub/jupyterhub_config.py:ro"
-      - "./volume:/data"
+      - "${HOST_DATA_DIR}:/data"
+      - "${HOST_SHARED_DIR}:/shared"
     environment:
       PYTHONUNBUFFERED: "1"
       CONFIGPROXY_AUTH_TOKEN: ${CONFIGPROXY_AUTH_TOKEN}
@@ -127,8 +128,9 @@ services:
       JUPYTERHUB_ADMIN: ${JUPYTERHUB_ADMIN}
       # Notebook directory inside user image
       DOCKER_NOTEBOOK_DIR: ${DOCKER_NOTEBOOK_DIR}
-      # Absolute path on host where user data will be stored
-      HOST_DATA_DIR: ${PWD}/volume
+      # Absolute paths on host, passed through so DockerSpawner binds resolve on the host
+      HOST_DATA_DIR: ${HOST_DATA_DIR}
+      HOST_SHARED_DIR: ${HOST_SHARED_DIR}
       # Enable GPU support (1 = enabled, 0 = disabled)
       ENABLE_GPU: ${ENABLE_GPU:-0}
       # Memory limit for spawned containers (e.g., "4G", "32G")
